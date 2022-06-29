@@ -1,0 +1,40 @@
+.menu{
+    color:#0f985b;
+    float:left;
+    width:15%;
+    height:100%;
+    position:fixed;
+}
+h1{
+    color:#0f985b;
+    font-weight:bold;
+}
+h2, h3{
+    font-weight:bold;
+}
+.title{
+    color:rgb(87, 72, 204);
+}
+.implement{
+    color:rgb(181, 97, 23);
+}
+.lien{
+    font-weight:bold;
+    font-size:1.5em;
+}
+.liens{
+    padding:5px 10px;
+    border:1px solid gray;
+    margin:0.5em 0;
+    border-radius:15px;
+    text-align:center;
+}
+.body{
+    width:70%;
+    height:100%;
+    margin-left:18%;
+}
+.over{
+    float:left;
+    margin-right:2em;
+}
