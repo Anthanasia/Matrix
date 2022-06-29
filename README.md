@@ -6,7 +6,7 @@ Le **C** reste un puissance langage de programmation et le pere mérité de plus
                 
 je commence ce grand voyage seul avec espoir de croisé sur mon chemin des personnes désirant offrir au monde leur connaissances
 
-**Victor Dol.** alias _hydromel Fondateur d'Anthanasia
+**Victor Dol.** alias  _hydromel Fondateur d'Anthanasia
 
 ## Concept
 
@@ -137,5 +137,3 @@ comment amener un programme a reconnaître une matrice selon quel est soit:
 ### Puissance d'une matrice
 
 ### Equation matriciel
-
-\sum_{i=0}
