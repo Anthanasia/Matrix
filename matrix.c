@@ -94,7 +94,67 @@ void insert(_Ref_ tab, _Tab_ elt){
 * @i: coordonnée du point sur la ligne i
 * @j: coordonnée du point sur la colonne j
 **/
-void append(matrix matrice, int data, int i, int j){
+void append_i(matrix matrice, int data, int i, int j){
+
+    _Tab_ t = (_Tab_) malloc(sizeof(Tab));
+    t->data.entier = data;
+
+    if(i != matrice.end->ref.i && j != matrice.end->ref.j){
+        t->ref.i = i;
+        t->ref.j = j;
+    }
+    insert(&matrice, t);
+}
+
+void append_d(matrix matrice, double data, int i, int j){
+
+    _Tab_ t = (_Tab_) malloc(sizeof(Tab));
+    t->data.reel = data;
+
+    if(i != matrice.end->ref.i && j != matrice.end->ref.j){
+        t->ref.i = i;
+        t->ref.j = j;
+    }
+    insert(&matrice, t);
+}
+
+void append_f(matrix matrice, float data, int i, int j){
+
+    _Tab_ t = (_Tab_) malloc(sizeof(Tab));
+    t->data.variant = data;
+
+    if(i != matrice.end->ref.i && j != matrice.end->ref.j){
+        t->ref.i = i;
+        t->ref.j = j;
+    }
+    insert(&matrice, t);
+}
+
+void append_ic(matrix matrice, complex int data, int i, int j){
+
+    _Tab_ t = (_Tab_) malloc(sizeof(Tab));
+    t->data.cmplxI = data;
+
+    if(i != matrice.end->ref.i && j != matrice.end->ref.j){
+        t->ref.i = i;
+        t->ref.j = j;
+    }
+    insert(&matrice, t);
+}
+
+void append_dc(matrix matrice, complex double data, int i, int j){
+
+    _Tab_ t = (_Tab_) malloc(sizeof(Tab));
+    t->data.cmplxD = data;
+
+    if(i != matrice.end->ref.i && j != matrice.end->ref.j){
+        t->ref.i = i;
+        t->ref.j = j;
+    }
+    insert(&matrice, t);
+}
+
+void append_cf(matrix matrice, complex float data, int i, int j){
 
     _Tab_ t = (_Tab_) malloc(sizeof(Tab));
     t->data.entier = data;
@@ -304,16 +364,24 @@ void add_dc(matrix matrice, int ligne, int colonne, ...){
         stop++;
 }
 
-
+/**
+*resize - redimensionnement de la matrice pour l'option élargie
+*
+*@matrice: matrice
+*@n: dimension en i ou j et l'autre matrice selon la valeur du boolean
+*@boolean: 0 pour élargissement en colonne et 1 pour ligne
+*
+*Return: matrice
+*/
 matrix resize(matrix matrice, int n, int boolean){
     // matrice incomplete en colonne
     if(boolean == 0){
         // nombre d'element manquant pour atteindre n
         int sub = n-matrice.countY;
-
+        // element parcourant la matrice
         _Tab_ elt = (_Tab_) malloc(sizeof(Tab));
         elt = matrice.start;
-
+        // la ligne a ajouter
         _Ref_ tab = (_Ref_) malloc(sizeof(matrix));
 
         // si n est inférieur a la dimension actuel de la matrice a agrandir
@@ -321,12 +389,12 @@ matrix resize(matrix matrice, int n, int boolean){
 
             int i = 0, j =0;
 
-            while (i < matrice.countX - 1) {
-            
-                while (j <= sub-1) {
+            while (i < matrice.countX) {
 
+                _Tab_ current = (_Tab_) malloc(sizeof(Tab));
+
+                while (j <= sub) {
                     // on modifie les numero de ligne et colonne
-                    _Tab_ current = (_Tab_) malloc(sizeof(Tab));
                     current->data = elt->data;
                     current->ref.i = i;
                     current->ref.j = matrice.countY + j;
@@ -336,6 +404,7 @@ matrix resize(matrix matrice, int n, int boolean){
                     elt = elt->next;
                     j++;
                 }
+                free(current);
 
                 // atteindre la fin de la premiere ligne pour ajouter les nouveau element
                 while ((elt->ref.i != matrice.countX - 1) && (elt->ref.j != i)){
@@ -346,7 +415,6 @@ matrix resize(matrix matrice, int n, int boolean){
                 old = elt;
 
                 //parcourir les elements a ajouter
-                _Tab_ current = (_Tab_) malloc(sizeof(Tab));
                 current = tab->start;
 
                 while (current->next != NULL) {
@@ -376,11 +444,12 @@ matrix resize(matrix matrice, int n, int boolean){
 
             _Tab_ old = (_Tab_) malloc(sizeof(Tab));
             old = elt;
-            while (i < tab->countX - 1) {
+            while (i < tab->countX) {
 
-                while (j < tab->countY - 1) {
+                _Tab_ current = (_Tab_) malloc(sizeof(Tab));
+                while (j < tab->countY) {
                     // on modifie les numero de ligne et colonne
-                    _Tab_ current = (_Tab_) malloc(sizeof(Tab));
+                    
                     current->data = elt->data;
                     current->ref.i = i;
                     current->ref.j = matrice.countY + j;
@@ -392,7 +461,7 @@ matrix resize(matrix matrice, int n, int boolean){
                     * dimension il faut intercepter le passage a le ligne suivante avant 
                     * juste a la fin de la boucle
                     */
-                    if(elt->next->ref.i == i+1){
+                    if(elt->next->ref.i == i + 1){
                         // pour conserver la ligne de la matrice normal sans perdre a suite
                         old = elt;
                         elt->next = tab->start;
@@ -410,49 +479,98 @@ matrix resize(matrix matrice, int n, int boolean){
                 free(old);
                 i++;
             }
-
+            free(elt);
+            free(tab);
             resize(matrice,matrice.countY - n, 0);
         }
 
-        /*
-        while (elt->next != NULL) {
-            if(elt->ref.j == matrice.countY-1)
-                elt->next = current;
-        }*/
     }else {
         //matrice incomplete en ligne
-    
+
+        // nombre d'element manquant pour atteindre n
+        int sub = n - matrice.countX;
+        // element parcourant la matrice
+        _Tab_ elt = (_Tab_) malloc(sizeof(Tab));
+        elt = matrice.start;
+        // element a ajouter
+        _Ref_ tab = (_Ref_) malloc(sizeof(matrix));
+
+        if(sub < matrice.countX){
+
+            int i = 0, j = 0;
+            while(i != sub){
+
+                 _Tab_ current = (_Tab_) malloc(sizeof(Tab));
+
+                while(j != matrice.countY){
+                    current->data = elt->data;
+                    current->ref.i = matrice.countX + i;
+                    current->ref.j = elt->ref.j;
+
+                    insert(tab,current);
+                    elt = elt->next;
+                    j++;
+                }
+
+                while (elt->next != NULL) {
+                    elt = elt->next;
+                }
+                elt->next = tab->start;
+
+                while(elt->next != NULL){
+                    elt = elt->next;
+                }
+                free(current);
+                free(elt);
+
+                elt = matrice.start;
+                // retour a la ligne suivant celle terminer dans la boucle de j
+                while(elt->ref.i != i+1){
+                    elt = elt->next;
+                }
+            }
+        }else {
+
+            int i = 0, j = 0;
+            while(i != matrice.countX){
+
+                 _Tab_ current = (_Tab_) malloc(sizeof(Tab));
+
+                while(j != matrice.countY){
+                    current->data = elt->data;
+                    current->ref.i = matrice.countX + i;
+                    current->ref.j = elt->ref.j;
+
+                    insert(tab,current);
+                    elt = elt->next;
+                    j++;
+                }
+
+                while (elt->next != NULL) {
+                    elt = elt->next;
+                }
+                elt->next = tab->start;
+
+                while(elt->next != NULL){
+                    elt = elt->next;
+                }
+                free(current);
+                free(elt);
+
+                elt = matrice.start;
+                // retour a la ligne suivant celle terminer dans la boucle de j
+                while(elt->ref.i != i+1){
+                    elt = elt->next;
+                }
+            }
+            resize(matrice,matrice.countY - n, 1);
+        }
+        free(elt);
+        free(tab);
     }
     return matrice;
 }
 
-/**
-* compare - compare les dimensions de deux matrix
-* description: renvoie une matrix redimensionner a la taille de la plus grande des
-*matrice ou un faux positif si les matrix sont de dimension égale
-*
-* @matrix:
-* @matrix:
-*
-* Return:
-**/
-matrix compare(matrix matrice_1, matrix matrice_2){
-
-    if(matrice_1.countX != matrice_2.countX){
-        if(matrice_1.countX > matrice_2.countX) 
-            return resize(matrice_1, matrice_2.countX, 1);
-        else
-         return resize(matrice_2, matrice_1.countX, 1);
-    }
-
-    if(matrice_1.countY != matrice_2.countY){
-        if(matrice_1.countY > matrice_2.countY) 
-            return resize(matrice_1, matrice_2.countY, 0);
-        else
-            return resize(matrice_2, matrice_1.countY, 0);
-    }
-    return IniT();
-}
 /**
 * sum - sommes de 2 matrice avec option élargie
 *
@@ -465,21 +583,141 @@ matrix compare(matrix matrice_1, matrix matrice_2){
 **/
 matrix sum(matrix matrice_1, matrix matrice_2){
 
+    matrix m1;
+    matrix m2;
+    matrix m;
+
+    if(matrice_1.countX != matrice_2.countX){
+        if(matrice_1.countX > matrice_2.countX)
+            m2 = resize(matrice_2, matrice_1.countX, 1);
+        else
+            m1 = resize(matrice_1, matrice_2.countX, 1);
+    }
+
+    if(matrice_1.countY != matrice_2.countY){
+        if(matrice_1.countY > matrice_2.countY)
+            m2 = resize(matrice_2, matrice_1.countY, 0);
+        else
+            m1 = resize(matrice_1, matrice_2.countY, 0);
+    }
+
     _Tab_ cur1 =(_Tab_) malloc(sizeof(Tab));
-    cur1 = matrice_1.start;
+    cur1 = m1.start;
+
     _Tab_ cur2 =(_Tab_) malloc(sizeof(Tab));
-    cur2 = matrice_2.start;
-    _Ref_ t;
+    cur2 = m2.start;
+
     _Tab_ cur =(_Tab_) malloc(sizeof(Tab));
 
-    compare(matrice_1, matrice_2);
-    compare(matrice_1, matrice_2);
+    while(cur1->next != NULL){
 
+        cur->ref.i = cur1->ref.i;
+        cur->ref.j = cur1->ref.j;
 
+        // compatibilité des données -- il doivent être de meme type
+        if(cur1->data.entier && cur2->data.entier)
+            cur->data.entier = cur1->data.entier + cur2->data.entier;
+
+        if(cur1->data.reel && cur2->data.reel)
+            cur->data.reel = cur1->data.reel + cur2->data.reel;
+
+        if(cur1->data.variant && cur2->data.variant)
+            cur->data.variant = cur1->data.variant + cur2->data.variant;
+
+        if(cur1->data.cmplxI && cur2->data.cmplxI)
+            cur->data.cmplxI = cur1->data.cmplxI + cur2->data.cmplxI;
+
+        if(cur1->data.cmplxD && cur2->data.cmplxD)
+            cur->data.cmplxD = cur1->data.cmplxD + cur2->data.cmplxD;
+
+        if(cur1->data.cmplxF && cur2->data.cmplxF)
+            cur->data.cmplxF = cur1->data.cmplxF + cur2->data.cmplxF;
+
+        if(cur->data.entier || cur->data.reel || cur->data.variant || 
+        cur->data.cmplxD || cur->data.cmplxF || cur->data.cmplxI)
+            insert(&m, cur);
+        else
+            insert(&m, NULL);
+
+        cur1 = cur1->next;
+        cur2 = cur2->next;
+    }
+    free(cur);
+    free(cur1);
+    free(cur2);
+    return m;
 } 
 
 matrix mul(matrix matrice_1, matrix matrice_2){
 
+    matrix m, m1, m2;
+
+    if(matrice_1.countY != matrice_2.countX){
+        if(matrice_1.countY > matrice_2.countX)
+            m2 = resize(matrice_2, matrice_1.countY, 1);
+        else
+            m1 = resize(matrice_1, matrice_2.countX, 0);
+    }
+
+    if(matrice_1.countX != matrice_2.countY){
+        if(matrice_1.countX > matrice_2.countY)
+            m2 = resize(matrice_2, matrice_1.countX, 0);
+        else
+            m1 = resize(matrice_1, matrice_2.countY, 1);
+    }
+
+    _Tab_ cur1 =(_Tab_) malloc(sizeof(Tab));
+    cur1 = matrice_1.start;
+
+    _Tab_ cur2 =(_Tab_) malloc(sizeof(Tab));
+    cur2 = matrice_2.start;
+
+    _Tab_ cur =(_Tab_) malloc(sizeof(Tab));
+
+    int i = 0, j = 0;
+    while(cur1->next != NULL){
+
+        while(cur2->next != NULL){
+
+            cur->ref.i = i;
+            cur->ref.j = j;
+            if(cur1->ref.j == j && cur2->ref.j == j){
+                
+            if(cur1->data.entier && cur2->data.entier)
+                cur->data.entier = cur1->data.entier * cur2->data.entier;
+
+            if(cur1->data.reel && cur2->data.reel)
+                cur->data.reel = cur1->data.reel * cur2->data.reel;
+
+            if(cur1->data.variant && cur2->data.variant)
+                cur->data.variant = cur1->data.variant * cur2->data.variant;
+
+            if(cur1->data.cmplxI && cur2->data.cmplxI)
+                cur->data.cmplxI = cur1->data.cmplxI * cur2->data.cmplxI;
+
+            if(cur1->data.cmplxD && cur2->data.cmplxD)
+                cur->data.cmplxD = cur1->data.cmplxD * cur2->data.cmplxD;
+
+            if(cur1->data.cmplxF && cur2->data.cmplxF)
+                cur->data.cmplxF = cur1->data.cmplxF * cur2->data.cmplxF;
+
+            if(cur->data.entier || cur->data.reel || cur->data.variant || 
+                cur->data.cmplxD || cur->data.cmplxF || cur->data.cmplxI)
+                insert(&m, cur);
+            else
+                insert(&m, NULL);
+
+            cur2 = cur2->next;
+            j++;
+            }
+            cur1 = cur1->next;
+            i++;
+        }
+    }
+    free(cur1);
+    free(cur2);
+    free(cur);
+    return m;
 }
 
 matrix scalar(int k, matrix matrice){
