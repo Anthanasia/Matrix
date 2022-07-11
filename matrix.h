@@ -7,16 +7,11 @@ typedef struct{
     int j;
 }Index;
 
-typedef union{
-    double reel;
-    float variant;
-    int entier;
-}Data;
-
 typedef struct Tabs{
-    Data data;
+    double data;
     Index ref;
     struct Tabs *next;
+    struct Tabs *prev;
 }Tab;
 
 typedef struct{
