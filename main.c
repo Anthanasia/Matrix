@@ -2,6 +2,7 @@
 #include "matrix.h"
 
 
+#include <stdlib.h>
 #include <unistd.h>
 
 /**
@@ -16,65 +17,64 @@ int _putchar(char c)
 	return (write(1, &c, 1));
 }
 
-int left_digit(int n)
+int _atoi(char *s)
 {
-return (n / 10);
+    int i = 0, j = 0, nbre = 0, p = 0;
+    char *n = malloc(sizeof(char));
+    while (s[i] != '\0')
+    {
+        i++;
+    }
+    for (j = 0; j <= i; j++)
+    {
+        if (_putchar(s[j] + '0') < _putchar(48) || _putchar(s[j] + '0') > _putchar(57))
+        {
+            continue;
+        }
+        else
+        {
+            if (_putchar(s[j] + '0') <= _putchar(57) && _putchar(s[j] + '0') >= _putchar(48))
+            {
+                *(n + j) = *(s + j);
+            }
+        }
+    }
+    i = 0;
+    while (n[i] != '\0')
+    {
+        i++;
+    }
+    for (j = 0; j <= i; j--)
+    {
+        nbre = nbre * 10 + _putchar(n[i] + '0');
+    }
+    free(n);
+    if (p > 0)
+    {
+        nbre = -nbre;
+    }
+    return (nbre);
 }
-
-void print_number(int n)
-{
-int a;
-int i = 0;
-if (n < 0)
-{
-n = -n;
-_putchar('-');
-}
-if (n >= 10)
-{
-while (n >= 10)
-{
-a = n;
-while (a >= 10)
-{
-a = left_digit(a);
-i++;
-}
-_putchar(a + '0');
-while (i > 0)
-{
-a = a * 10;
-i--;
-}
-n = n - a;
-}
-_putchar(n + '0');
-}
-else
-{
-if (n < 10)
-{
-_putchar(n + '0');
-}
-else
-{
-_putchar(n + '0');
-}
-}
-}
-
 
 int main(void)
 {
-    print_number(98);
-    _putchar('\n');
-    print_number(402);
-    _putchar('\n');
-    print_number(1024);
-    _putchar('\n');
-    print_number(0);
-    _putchar('\n');
-    print_number(-98);
-    _putchar('\n');
+    int nb;
+
+    nb = _atoi("98");/*
+    printf("%d\n", nb);
+    nb = _atoi("-402");
+    printf("%d\n", nb);
+    nb = _atoi("          ------++++++-----+++++--98");
+    printf("%d\n", nb);
+    nb = _atoi("214748364");
+    printf("%d\n", nb);
+    nb = _atoi("0");
+    printf("%d\n", nb);
+    nb = _atoi("Suite 402");
+    printf("%d\n", nb);
+    nb = _atoi("         +      +    -    -98 Battery Street; San Francisco, CA 94111 - USA    ");
+    printf("%d\n", nb);
+    nb = _atoi("---++++ -++ Sui - te -   402 #cisfun :)");
+    printf("%d\n", nb);*/
     return (0);
 }

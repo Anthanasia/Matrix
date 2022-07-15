@@ -50,16 +50,21 @@ _Tab_ verify(_Ref_ tab, int i, int j){
     left = tab->start;
 
     _Tab_ right = (_Tab_) malloc(sizeof(Tab));
-    right = tab->end;
+    if(tab->count > 3)
+        right = tab->end;
 
     _Tab_ current = (_Tab_) malloc(sizeof(Tab));
 
     while((left->ref.i != i && left->ref.j != j) || (right->ref.i != i && right->ref.j != j) || 
         (left->next != right && right->prev != left)){
 
-        left = left->next;
-        right = right->prev;
-    
+        if(left->next != right->prev){
+            left = left->next;
+            right = right->prev;
+
+        }else {
+            left = left->next;
+        }
     }
         
     if(left->ref.i != i || right->ref.i != i){
@@ -188,10 +193,12 @@ int equal(matrix matrice_1, matrix matrice_2){
 
         // parcours de droite vers la gauche
         _Tab_ eltR = (_Tab_) malloc(sizeof(Tab));
-        eltR = matrice_1.end;
+        if(matrice_1.count > 3)
+            eltR = matrice_1.end;
 
         _Tab_ currentR = (_Tab_) malloc(sizeof(Tab));
-        currentR = matrice_2.end;
+        if(matrice_2.count > 3)
+            currentR = matrice_2.end;
 
         int i = 0, j = 0;
         while((eltL->next != eltR && eltR->prev != eltL) || 
@@ -202,11 +209,19 @@ int equal(matrix matrice_1, matrix matrice_2){
             if(eltL->data == -currentL->data && eltR->data == -currentR->data) 
                 j += 2;
 
+            if(eltL->next != eltR->prev){
+                eltL = eltL->next;
+                eltR = eltR->prev;
+            }else {
             eltL = eltL->next;
-            eltR = eltR->prev;
-
-            currentL = currentL->next;
-            currentR = currentR->prev;
+            }
+            
+            if(currentL->next != currentR->prev){
+                currentL = currentL->next;
+                currentR = currentR->prev;
+            }else {
+                currentL = currentL->next;
+            }
         }
         free(eltL);
         free(eltR);
@@ -297,7 +312,7 @@ matrix screen(matrix matrice, int row, int col){
 /**
 * deter - determinant d'une matrice 2×2
 *
-* @matrice:
+* @matrice:la matrice de base
 *
 * Return: un double
 **/
@@ -312,7 +327,7 @@ double deter(matrix matrice){
 *
 * Description: peut s'utiliser avec une boucle pour l'ajout en masse
 *
-* @matrice: la matrix
+* @matrice: la matrice de base
 * @data: un point de la matrice
 * @i: coordonnée du point sur la ligne i
 * @j: coordonnée du point sur la colonne j
@@ -333,7 +348,7 @@ void append(matrix matrice, double data, int i, int j){
 /**
 * add_d - fonction (double) d'initialisation de masse des elements de la matrice
 *
-* @matrice:
+* @matrice: la matrice de base
 * @ligne: nombre de lignes
 * @colonne: nombre de colonnes
 * @va_arg: liste de variables de type point d'une matrice _(donnee, ligne, colonne)
@@ -367,7 +382,7 @@ void add(matrix matrice,  int row, ...){
 /**
 * print - affichage de la matrice
 *
-* @matrice:
+* @matrice:la matrice de base
 **/
 void print(matrix matrice){
     _Tab_ elt = (_Tab_) malloc(sizeof(Tab));
@@ -390,7 +405,7 @@ void print(matrix matrice){
 /**
 *resize - redimensionnement de la matrice pour l'option élargie
 *
-*@matrice: matrice
+*@matrice: la matrice de base
 *@n: dimension en i ou j et l'autre matrice selon la valeur du boolean
 *@boolean: 0 pour élargissement en colonne et 1 pour ligne
 *
@@ -601,8 +616,8 @@ matrix resize(matrix matrice, int n, int boolean){
 /**
 * sum - sommes de 2 matrice avec option élargie
 *
-* @matrice_1:
-* @matrice_2:
+* @matrice_1: la matrice de base
+* @matrice_2: la matrice de base
 *
 * Return: matrix
 **/
@@ -655,6 +670,12 @@ matrix sum(matrix matrice_1, matrix matrice_2){
     return m;
 } 
 
+/**
+* mul - produit de 2 matrice
+* @matrice_1: la matrice de base
+* @matrice_2: la matrice de base
+* Return: matrix
+**/
 matrix mul(matrix matrice_1, matrix matrice_2){
 
     matrix m, m1 = copy(matrice_1), m2 = copy(matrice_2);
@@ -668,42 +689,64 @@ matrix mul(matrix matrice_1, matrix matrice_2){
     }
 
     dim(m,m1.countX, m2.countY);
-
-    _Tab_ cur1 =(_Tab_) malloc(sizeof(Tab));
-
-    _Tab_ cur2 =(_Tab_) malloc(sizeof(Tab));
     
     _Tab_ cur =(_Tab_) malloc(sizeof(Tab));
 
     int i = 0, j = 0;
-    while (i < m.count) {
+    while (i < m1.countX) {
+        cur->ref.i = i;
+        double a = 0;
 
-        cur1 = m1.start;
-        cur2 = m2.start;
-
-        
-        
+        while(j < m2.countY) {
+            cur->ref.j = j;
+            a += verify(&m1, i, j)->data * verify(&m2, j, i)->data;
+            j++;
+        }
+        cur->data = a;
+        insert(&m, cur);
+        i++;
     }
-    
-    free(cur1);
-    free(cur2);
     free(cur);
     return m;
 }
 
+/**
+* scalar - produit de matrice par un scalaire
+* @k: scalaire
+* @matrice: la matrice de base
+* Return: matrice
+**/
 matrix scalar(int k, matrix matrice){
 
-    _Tab_ elt = (_Tab_) malloc(sizeof(Tab));
-    elt = matrice.start;
+    _Tab_ left = (_Tab_) malloc(sizeof(Tab));
+    left = matrice.start;
 
-    while (elt->next != NULL) {
-        elt->data = k * elt->data;
-        elt = elt->next;
+    _Tab_ right = (_Tab_) malloc(sizeof(Tab));
+    if(matrice.count > 3)
+        right = matrice.end;
+
+    while (left->next != right && right->prev != left) {
+        left->data = k * left->data;
+        right->data = k * right->data;
+
+        if(left->next != right->prev){
+            left = left->next;
+            right = right->prev;
+
+        }else {
+            left = left->next;
+        }
     }
-    free(elt);
+    free(left);
+    free(right);
     return matrice;
 }
 
+/**
+* trp - transposer de matrice
+* @matrice: la matrice de base
+* Return: matrice
+**/
 matrix trp(matrix matrice){
 
     _Tab_ elt = (_Tab_) malloc(sizeof(Tab));
@@ -742,6 +785,11 @@ matrix trp(matrix matrice){
     return m;
 }
 
+/**
+* det - determinant d'une matrice
+* @matrice: la matrice de base
+* Return: double number
+**/
 double det(matrix matrice){
 
     if(matrice.count == 4)
@@ -765,6 +813,11 @@ double det(matrix matrice){
     }
 }
 
+/**
+* coma - co-matrice
+* @matrice: la matrice de base
+* Return: matrice
+**/ 
 matrix coma(matrix matrice){
 
     matrix m;
@@ -791,12 +844,22 @@ matrix coma(matrix matrice){
     return m;
 }
 
+/**
+* rev - inverse d'une matrice
+* @matrice: la matrice de base
+* Return: matrix
+**/
 matrix rev(matrix matrice){
     if(det(matrice) == 0) return IniT();
     else
         return scalar(1/det(matrice),trp(coma(matrice)));
 }
 
+/**
+* por - elevation a la puissance
+* @matrice: la matrice de base
+* @n: facteur de puissance
+**/
 matrix por(matrix matrice, double n){
     matrix m, p = copy(m) ;
     /*
@@ -810,62 +873,90 @@ matrix por(matrix matrice, double n){
     return m;
 }
 
-
-
+/**
+* sym - détecte le genre d'une matrice
+* Description: -1 antisymétrique, 1 symétrique sinon 0
+* @matrice: la matrice de base
+**/
 int sym(matrix matrice){
     return equal(matrice, matrice);
 }
 
+/**
+* sys - resolution d'equation matriciel
+* @matrice: matrice du systeme d'equation
+* @tab: second membre
+* Return: matrice ligne de b0 à bn
+**/
 matrix sys(matrix matrice, matrix tab){
 
+    matrix eq = copy(matrice), snd = copy(tab);
     // la matrice tab devra être une matrice 1×n d'ou la trp(tab) est n×1
-    if(matrice.countX != tab.countY) return IniT();
-    else{
+    if(matrice.countX != tab.count){
 
-        matrix eq = copy(matrice), snd = trp(copy(tab));
-
-        _Tab_ elt = (_Tab_) malloc(sizeof(Tab));
-        elt = eq.start;
-
-        _Tab_ current = (_Tab_) malloc(sizeof(Tab));
-        current = snd.start;
-
-        int i = 0, j = 0,p = 0, k = 0;
-        while(k < tab.countX - 1){
-
-            i = k + 1;
-            while(i < tab.countX-1){
-
-                while(elt->next != NULL){
-                    if(j <= k && elt->ref.j == j) elt->data = 0;
-                    else{
-                        if(elt->ref.i == i){
-                            elt->data -=  verify(&eq,i,j)->data * 
-                            verify(&eq,k,j)->data/verify(&eq,k,k)->data;
-                        }
-                    }
-                    elt = elt->next;
-                    j++;
-                }
-                while(current->next != NULL){
-                    if(current->ref.i == i)
-                        current->data -= verify(&eq,i,p)->data * 
-                            verify(&eq,k,p)->data/verify(&eq,k,k)->data;
-
-                    current = current->next;
-                    p++;
-                }
-                i++;
-            }
-            k++;
+        if(matrice.countX > tab.count){
+            // si la matrice tab est de type 1×n
+            if(tab.countY > 1)
+                snd = resize(tab, matrice.countX, 0);
+            else    // si la matrice tab est de type n×1
+                snd = resize(tab, matrice.countX, 1);
         }
-        current->data =  verify(&snd,snd.countX - 1, 0)->data /
-         verify(&eq, eq.countX -1, eq.countY - 1)->data;
-
-        for(i = 0; i < eq.countX - 1; i++){
-            for(k = i+1; k < eq.countX; k++){
-                
-            }
-        }
+        else
+            eq = resize(matrice, tab.count, 1);
     }
+
+    _Tab_ elt = (_Tab_) malloc(sizeof(Tab));
+    elt = eq.start;
+
+    _Tab_ current = (_Tab_) malloc(sizeof(Tab));
+    current = snd.start;
+
+    int i = 0, j = 0,p = 0, k = 0;
+    while(k < tab.count - 1){
+
+        i = k + 1;
+        while(i < tab.count-1){
+
+            while(elt->next != NULL){
+
+                if(j <= k && elt->ref.j == j) elt->data = 0;
+                else{
+                    if(elt->ref.i == i){
+                        elt->data -=  verify(&eq,i,j)->data * 
+                        verify(&eq,k,j)->data/verify(&eq,k,k)->data;
+                    }
+                }
+                elt = elt->next;
+                j++;
+            }
+            while(current->next != NULL){
+
+                if(current->ref.i == i)
+                     current->data -= verify(&eq,i,p)->data * 
+                        verify(&eq,k,p)->data/verify(&eq,k,k)->data;
+
+                current = current->next;
+                p++;
+            }
+            i++;
+        }
+        k++;
+    }
+    current->data =  verify(&snd,snd.count - 1, 0)->data /
+     verify(&eq, eq.countX -1, eq.countY - 1)->data;
+
+    current = current->prev;
+    double b = 0;
+
+    for(i = snd.count - 2; i >= 0; i--){
+
+        for(j = snd.count - 1; j > i; j--){
+            b += verify(&eq, i, j)->data * verify(&snd, i, 0)->data;
+        }
+        current->data -= b/verify(&eq, i, i)->data;
+        current = current->prev;
+    }
+    free(elt);
+    free(current);
+    return snd;
 }
