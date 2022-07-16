@@ -11,6 +11,7 @@
 #include <stdlib.h>
 #include <math.h>
 #include <stdio.h>
+#include <string.h>
 
 /* ÉTABLISSEMENT DU SYSTEME MATRICIEL DE BASE
 ################################################################################################
@@ -18,7 +19,7 @@
 
 /**
 * init - fonction désignant un faux dans le vérificateur de contenu verify(fonction)
-* description:cette fonction fut créé dans le seul but de renvoyer un indicateur de 
+* Description:cette fonction fut créé dans le seul but de renvoyer un indicateur de 
 * semblable a false. la plupart des fonctions devant retourner une matrice d'ou le format
 * Return: un element de matrice 
 **/
@@ -56,7 +57,7 @@ _Tab_ verify(_Ref_ tab, int i, int j){
     _Tab_ current = (_Tab_) malloc(sizeof(Tab));
 
     while((left->ref.i != i && left->ref.j != j) || (right->ref.i != i && right->ref.j != j) || 
-        (left->next != right && right->prev != left)){
+        (left->next != right && right->prev != left) || left->next != NULL){
 
         if(left->next != right->prev){
             left = left->next;
@@ -202,7 +203,8 @@ int equal(matrix matrice_1, matrix matrice_2){
 
         int i = 0, j = 0;
         while((eltL->next != eltR && eltR->prev != eltL) || 
-            (currentL->next != currentR && currentR->next != currentL)){
+            (currentL->next != currentR && currentR->next != currentL) || 
+            eltL->next != NULL || currentL != NULL){
 
             if(eltL == currentL && eltR == currentR)
                 i += 2;
@@ -669,6 +671,86 @@ matrix sum(matrix matrice_1, matrix matrice_2){
 
     return m;
 } 
+
+/**
+* count - sommes de matrice par un scalaire
+*
+* Description: rows pour les ligne, cols pours les colonne et xy pour ligne et colonne
+*   ce qui suit est valable pour chaque direction
+*
+*   i, k et p sont des nombre entiers et la composé avec les directions sont des chaines 
+*
+*   "(i)-rows" -> ajout du scalaire aux elements de la ligne i
+*
+*   "(i+k)-rows" -> ajout a la ligne i et la ligne k
+*
+*   "[i-k]-rows" -> ajout de la ligne i a la ligne k
+*
+*   "(in)-rows" -> ajout aux lignes de rang i a commencé par 0
+*
+*   "[in-k]-rows" -> ajout aux lignes de rang i a commencé par 0 jusqu'a la ligne k
+*
+*   "(in+k)-rows" -> ajout aux lignes de rang i a commencé par k
+*
+*   "[(in+k)-p]-rows" -> ajout aux lignes de rang i a commencé par k jusqu'a la ligne p
+*
+*   all -> ajout a tout les elements de matrice
+*
+*   diag -> ajout au elements de la diagonale
+*
+* @matrice: la matrice de base
+* @k: scalaire d''ajout
+* @dist: méthode d'ajout
+*
+* @Return: matrice
+**/
+matrix count(matrix matrice, int k, char dist[]){
+
+    matrix m = copy(matrice);
+    _Tab_ left = (_Tab_) malloc(sizeof(Tab));
+    left = m.start;
+
+    _Tab_ right = (_Tab_) malloc(sizeof(Tab));
+    if(m.count > 3)
+        right = m.end;
+
+    if(strcmp(dist, all) == 0){
+
+        while(left->next != right || right->prev != left || left->next != NULL){
+
+            left->data = k + left->data;
+            right->data = k + right->data;
+
+            left =left->next;
+            right = right->next; 
+        }
+    }
+    else if(strcmp(dist, diag) == 0){
+
+        while(left->next != NULL){
+            if(left->ref.i == left->ref.j){
+
+                left->data = k + left->data;
+                left =left->next;
+            }
+        }
+    }
+    else if(strncmp(dist, rows, strlen(rows)) == 0){
+    }
+    else if(strncmp(dist, cols, strlen(cols)) == 0){
+    }
+    else if(strncmp(dist, xy, strlen(xy)) == 0){
+    }
+    else if(strncmp(dist, all, strlen(all)) == 0){
+    }
+    else if(strncmp(dist, diag, strlen(diag)) == 0){
+    }
+    else {
+        printf("DataError: direction undefine");
+        return IniT();
+    }
+    return m;
+}
 
 /**
 * mul - produit de 2 matrice

@@ -1,6 +1,3 @@
-#ifndef complex
-#define complex
-#endif
 
 typedef struct{
     int i;
@@ -23,6 +20,10 @@ typedef struct{
 }matrix;
 
 
-#define _Tab_           Tab *
-#define _Ref_           matrix *
-
+#define _Tab_         Tab *
+#define _Ref_         matrix *
+#define all           "all"
+#define rows          "-rows"
+#define cols          "-cols"
+#define diag          "diag"
+#define xy            "-xy"
