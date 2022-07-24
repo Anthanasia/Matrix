@@ -3,7 +3,7 @@
 Le **C** reste un puissance langage de programmation et le pere mérité de plusieurs et de ce fait nous a Anthanasia avions pris sur nous le désir de l’explorer pendant un moment qui certainement nous sera bénéfique et dans cette mesure nous livrons a tous la bibliothèque Matrix implémentant un nombre conséquent des capacités d'une matrice et a la mesure de nos connaissances actuel.
 
 ## Contributeur
-                
+
 je commence ce grand voyage seul avec espoir de croisé sur mon chemin des personnes désirant offrir au monde leur connaissances
 
 **Victor Dol.** alias  _hydromel Fondateur d'Anthanasia

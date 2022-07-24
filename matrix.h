@@ -22,8 +22,5 @@ typedef struct{
 
 #define _Tab_         Tab *
 #define _Ref_         matrix *
-#define all           "all"
-#define rows          "-rows"
-#define cols          "-cols"
+#define all          "alls"
 #define diag          "diag"
-#define xy            "-xy"

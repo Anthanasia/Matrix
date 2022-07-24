@@ -17,6 +17,11 @@
 ################################################################################################
 */
 
+/*CONSTANTES
+#####################################################################################
+*/
+const char *rows = "-rows";
+const char *cols = "-cols";
 /**
 * init - fonction désignant un faux dans le vérificateur de contenu verify(fonction)
 * Description:cette fonction fut créé dans le seul but de renvoyer un indicateur de 
@@ -281,14 +286,14 @@ matrix copy(matrix matrice){
 **/ 
 matrix screen(matrix matrice, int row, int col){
 
-    matrix m;
+    matrix m = matrice;
     dim(m,matrice.countX - 1,matrice.countY - 1);
 
     _Tab_ elt = (_Tab_) malloc(sizeof(Tab));
     elt = matrice.start;
     _Tab_ current = (_Tab_) malloc(sizeof(Tab));
 
-    int i = 0, j = 0;
+    int  j = 0;
     while(elt->next != NULL){
 
         if(elt->ref.i != row || elt->ref.j != col){
@@ -674,26 +679,6 @@ matrix sum(matrix matrice_1, matrix matrice_2){
 
 /**
 * count - sommes de matrice par un scalaire
-*
-* Description: rows pour les ligne, cols pours les colonne et xy pour ligne et colonne
-*   ce qui suit est valable pour chaque direction
-*
-*   i, k et p sont des nombre entiers et la composé avec les directions sont des chaines 
-*
-*   "(i)-rows" -> ajout du scalaire aux elements de la ligne i
-*
-*   "(i+k)-rows" -> ajout a la ligne i et la ligne k
-*
-*   "[i-k]-rows" -> ajout de la ligne i a la ligne k
-*
-*   "(in)-rows" -> ajout aux lignes de rang i a commencé par 0
-*
-*   "[in-k]-rows" -> ajout aux lignes de rang i a commencé par 0 jusqu'a la ligne k
-*
-*   "(in+k)-rows" -> ajout aux lignes de rang i a commencé par k
-*
-*   "[(in+k)-p]-rows" -> ajout aux lignes de rang i a commencé par k jusqu'a la ligne p
-*
 *   all -> ajout a tout les elements de matrice
 *
 *   diag -> ajout au elements de la diagonale
@@ -704,7 +689,7 @@ matrix sum(matrix matrice_1, matrix matrice_2){
 *
 * @Return: matrice
 **/
-matrix count(matrix matrice, int k, char dist[]){
+matrix count(matrix matrice, int k, char dir[4]){
 
     matrix m = copy(matrice);
     _Tab_ left = (_Tab_) malloc(sizeof(Tab));
@@ -714,9 +699,9 @@ matrix count(matrix matrice, int k, char dist[]){
     if(m.count > 3)
         right = m.end;
 
-    if(strcmp(dist, all) == 0){
+    if(strcmp(dir, all) == 0){
 
-        while(left->next != right || right->prev != left || left->next != NULL){
+        while((left->next != right && right->prev != left) || left->next != NULL){
 
             left->data = k + left->data;
             right->data = k + right->data;
@@ -725,29 +710,18 @@ matrix count(matrix matrice, int k, char dist[]){
             right = right->next; 
         }
     }
-    else if(strcmp(dist, diag) == 0){
+    else if(strcmp(dir, diag) == 0) {
+         left = m.start;
 
-        while(left->next != NULL){
+         while(left->next != NULL){
             if(left->ref.i == left->ref.j){
-
                 left->data = k + left->data;
-                left =left->next;
+                left = left->next;
             }
-        }
-    }
-    else if(strncmp(dist, rows, strlen(rows)) == 0){
-    }
-    else if(strncmp(dist, cols, strlen(cols)) == 0){
-    }
-    else if(strncmp(dist, xy, strlen(xy)) == 0){
-    }
-    else if(strncmp(dist, all, strlen(all)) == 0){
-    }
-    else if(strncmp(dist, diag, strlen(diag)) == 0){
+         }
     }
     else {
         printf("DataError: direction undefine");
-        return IniT();
     }
     return m;
 }
@@ -760,7 +734,7 @@ matrix count(matrix matrice, int k, char dist[]){
 **/
 matrix mul(matrix matrice_1, matrix matrice_2){
 
-    matrix m, m1 = copy(matrice_1), m2 = copy(matrice_2);
+    matrix m = IniT(), m1 = copy(matrice_1), m2 = copy(matrice_2);
    
     if(matrice_1.countY != matrice_2.countX){
     //dimension j de la premiere matrice = a la dimension i de la seconde sinon appel a resize
@@ -798,7 +772,7 @@ matrix mul(matrix matrice_1, matrix matrice_2){
 * @matrice: la matrice de base
 * Return: matrice
 **/
-matrix scalar(int k, matrix matrice){
+matrix scalar(matrix matrice, int k, char dir[4]){
 
     _Tab_ left = (_Tab_) malloc(sizeof(Tab));
     left = matrice.start;
@@ -807,18 +781,32 @@ matrix scalar(int k, matrix matrice){
     if(matrice.count > 3)
         right = matrice.end;
 
-    while (left->next != right && right->prev != left) {
-        left->data = k * left->data;
-        right->data = k * right->data;
+    if(strcmp(dir, all) == 0){
+         while (left->next != right && right->prev != left) {
+            left->data = k * left->data;
+            right->data = k * right->data;
 
-        if(left->next != right->prev){
-            left = left->next;
-            right = right->prev;
-
-        }else {
-            left = left->next;
+            if(left->next != right->prev){
+                left = left->next;
+                right = right->prev;
+            }else {
+                left = left->next;
+            }
         }
     }
+    else if(strcmp(dir, diag) == 0){
+        left  = matrice.start;
+        while (left->next != NULL) {
+            if(left->ref.i == left->ref.j){
+                left->data = k * left->data;
+                left = left->next;
+            } 
+        }
+    }
+    else {
+        printf("DataError: direction found");
+    }
+   
     free(left);
     free(right);
     return matrice;
