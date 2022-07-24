@@ -13,15 +13,10 @@
 #include <stdio.h>
 #include <string.h>
 
-/* ÉTABLISSEMENT DU SYSTEME MATRICIEL DE BASE
+/* ÉTABLISSEMENT DU SYSTEME MATRICIEL DE BASE  ( la boite noire )
 ################################################################################################
 */
 
-/*CONSTANTES
-#####################################################################################
-*/
-const char *rows = "-rows";
-const char *cols = "-cols";
 /**
 * init - fonction désignant un faux dans le vérificateur de contenu verify(fonction)
 * Description:cette fonction fut créé dans le seul but de renvoyer un indicateur de 
@@ -51,19 +46,21 @@ _Tab_ init(){
 * Return: un element de matrix
 **/
 _Tab_ verify(_Ref_ tab, int i, int j){
-
+    //ligne de depart
     _Tab_ left = (_Tab_) malloc(sizeof(Tab));
     left = tab->start;
-
+    // ligne de retour
     _Tab_ right = (_Tab_) malloc(sizeof(Tab));
-    if(tab->count > 3)
-        right = tab->end;
+    right = tab->end;
 
     _Tab_ current = (_Tab_) malloc(sizeof(Tab));
 
     while((left->ref.i != i && left->ref.j != j) || (right->ref.i != i && right->ref.j != j) || 
-        (left->next != right && right->prev != left) || left->next != NULL){
-
+        (left->next != right && right->prev != left) ){
+        /**
+        lorque le nobre d'element est impair l''aller et le retour se rencontrerons en un point alors pour eviter le depassement
+        le retour stop et l'aller avance afin de crée une situation de sortie
+        **/
         if(left->next != right->prev){
             left = left->next;
             right = right->prev;
@@ -72,7 +69,7 @@ _Tab_ verify(_Ref_ tab, int i, int j){
             left = left->next;
         }
     }
-        
+    //element non trouvé
     if(left->ref.i != i || right->ref.i != i){
 
         free(left);
@@ -108,7 +105,7 @@ void insert(_Ref_ tab, _Tab_ elt){
     _Tab_ current = (_Tab_) malloc(sizeof(Tab));
 
     news = elt;
-    // insertion dans une liste vide
+    // insertion dans une matrice vide
     if(tab->count < 1){
 
         news->next = NULL;
@@ -116,7 +113,7 @@ void insert(_Ref_ tab, _Tab_ elt){
         tab->start = news;
         tab->end = news;
         tab->count++;
-    // insertion en fin de liste
+    // insertion a la suite d'une matrice
     }else{
 
         if(tab->count < tab->countX * tab->countY){
@@ -151,7 +148,6 @@ matrix IniT(){
     FONCTION SUBTILE DE MATRICE
 #############################################################################################
 **/
-
 
 /**
 * trace - permet de determiner la trace d'une matrice
@@ -199,17 +195,13 @@ int equal(matrix matrice_1, matrix matrice_2){
 
         // parcours de droite vers la gauche
         _Tab_ eltR = (_Tab_) malloc(sizeof(Tab));
-        if(matrice_1.count > 3)
-            eltR = matrice_1.end;
+        eltR = matrice_1.end;
 
         _Tab_ currentR = (_Tab_) malloc(sizeof(Tab));
-        if(matrice_2.count > 3)
-            currentR = matrice_2.end;
+        currentR = matrice_2.end;
 
         int i = 0, j = 0;
-        while((eltL->next != eltR && eltR->prev != eltL) || 
-            (currentL->next != currentR && currentR->next != currentL) || 
-            eltL->next != NULL || currentL != NULL){
+        while( (eltL->next != eltR && eltR->prev != eltL) || (currentL->next != currentR && currentR->next != currentL) ){
 
             if(eltL == currentL && eltR == currentR)
                 i += 2;
@@ -286,7 +278,7 @@ matrix copy(matrix matrice){
 **/ 
 matrix screen(matrix matrice, int row, int col){
 
-    matrix m = matrice;
+    matrix m  = IniT() ;
     dim(m,matrice.countX - 1,matrice.countY - 1);
 
     _Tab_ elt = (_Tab_) malloc(sizeof(Tab));
@@ -295,7 +287,7 @@ matrix screen(matrix matrice, int row, int col){
 
     int  j = 0;
     while(elt->next != NULL){
-
+        // ligne et colonne a oter
         if(elt->ref.i != row || elt->ref.j != col){
             if(elt->ref.i < row)
                 current->ref.i = elt->ref.i;
@@ -309,6 +301,7 @@ matrix screen(matrix matrice, int row, int col){
 
             current->data = elt->data;
         }
+        insert(&m, current);
         elt = elt->next;
     }
     free(elt);
@@ -343,7 +336,6 @@ void append(matrix matrice, double data, int i, int j){
 
     _Tab_ t = (_Tab_) malloc(sizeof(Tab));
     t->data = data;
-
     if(i != matrice.end->ref.i && j != matrice.end->ref.j){
         t->ref.i = i;
         t->ref.j = j;
@@ -353,12 +345,11 @@ void append(matrix matrice, double data, int i, int j){
 }
 
 /**
-* add_d - fonction (double) d'initialisation de masse des elements de la matrice
+* add - fonction d'initialisation de masse des elements de la matrice
 *
 * @matrice: la matrice de base
-* @ligne: nombre de lignes
-* @colonne: nombre de colonnes
-* @va_arg: liste de variables de type point d'une matrice _(donnee, ligne, colonne)
+* @row: nombre de colonne
+* @...: liste de variables de type point d'une matrice _(donnee, ligne, colonne)
 *
 **/
 void add(matrix matrice,  int row, ...){
@@ -395,7 +386,6 @@ void print(matrix matrice){
     _Tab_ elt = (_Tab_) malloc(sizeof(Tab));
     elt = matrice.start;
     int i = 0;
-
     while(elt->next != NULL){
 
         printf("%p", elt);
@@ -772,7 +762,7 @@ matrix mul(matrix matrice_1, matrix matrice_2){
 * @matrice: la matrice de base
 * Return: matrice
 **/
-matrix scalar(matrix matrice, int k, char dir[4]){
+matrix scalar(matrix matrice, int k, int dir){
 
     _Tab_ left = (_Tab_) malloc(sizeof(Tab));
     left = matrice.start;
@@ -781,7 +771,7 @@ matrix scalar(matrix matrice, int k, char dir[4]){
     if(matrice.count > 3)
         right = matrice.end;
 
-    if(strcmp(dir, all) == 0){
+    if(dir == all){
          while (left->next != right && right->prev != left) {
             left->data = k * left->data;
             right->data = k * right->data;
@@ -794,7 +784,7 @@ matrix scalar(matrix matrice, int k, char dir[4]){
             }
         }
     }
-    else if(strcmp(dir, diag) == 0){
+    else if(dir == diag){
         left  = matrice.start;
         while (left->next != NULL) {
             if(left->ref.i == left->ref.j){
@@ -922,7 +912,7 @@ matrix coma(matrix matrice){
 matrix rev(matrix matrice){
     if(det(matrice) == 0) return IniT();
     else
-        return scalar(1/det(matrice),trp(coma(matrice)));
+        return scalar(trp(coma(matrice)), 1/det(matrice), all);
 }
 
 /**
