@@ -24,7 +24,10 @@
 * Return: un element de matrice 
 **/
 _Tab_ init(){
-    _Tab_ p = (_Tab_) malloc(sizeof(Tab));
+    _Tab_ p = malloc(sizeof(Tab));
+    if(p == NULL){
+        return NULL;
+    }
     p->data = 0;
     p->next = NULL;
     p->prev = NULL;
@@ -47,38 +50,40 @@ _Tab_ init(){
 **/
 _Tab_ verify(_Ref_ tab, int i, int j){
     //ligne de depart
-    _Tab_ left = (_Tab_) malloc(sizeof(Tab));
+    _Tab_ left = malloc(sizeof(Tab));
+    if(left == NULL){
+        printf("AllocationError!!!");
+        return NULL;
+    }
     left = tab->start;
     // ligne de retour
-    _Tab_ right = (_Tab_) malloc(sizeof(Tab));
+    _Tab_ right = malloc(sizeof(Tab));
+    if(right == NULL){
+        printf("AllocationError!!!");
+        return NULL;
+    }
     right = tab->end;
 
-    _Tab_ current = (_Tab_) malloc(sizeof(Tab));
-
-    while((left->ref.i != i && left->ref.j != j) || (right->ref.i != i && right->ref.j != j) || 
-        (left->next != right && right->prev != left) ){
+    _Tab_ current = malloc(sizeof(Tab));
+    while((left->ref.i != i && left->ref.j != j) || (right->ref.i != i && right->ref.j != j) ||
+                                                                    (left->next != right && right->prev != left) ){
         /**
         lorque le nobre d'element est impair l''aller et le retour se rencontrerons en un point alors pour eviter le depassement
         le retour stop et l'aller avance afin de crée une situation de sortie
         **/
-        if(left->next != right->prev){
+        if((left->next != right->prev) && (left->next == right || right->prev == left)){
             left = left->next;
             right = right->prev;
-
         }else {
             left = left->next;
         }
     }
     //element non trouvé
     if(left->ref.i != i || right->ref.i != i){
-
         free(left);
         free(right);
-
-        return init();
-
+        return NULL;
     }else{
-
         if(left->ref.i == i && left->ref.j == j)
              current = left;
 
@@ -87,7 +92,6 @@ _Tab_ verify(_Ref_ tab, int i, int j){
     }
     free(left);
     free(right);
-
     return current;
 }
 
@@ -100,14 +104,19 @@ _Tab_ verify(_Ref_ tab, int i, int j){
 * Return: @{Ref}
 **/
 void insert(_Ref_ tab, _Tab_ elt){
-
-    _Tab_ news = (_Tab_) malloc(sizeof(Tab));
-    _Tab_ current = (_Tab_) malloc(sizeof(Tab));
-
+    _Tab_ news = malloc(sizeof(Tab));
+    if(news == NULL){
+        printf("AllocationError!!!");
+        return;
+    }
+    _Tab_ current = malloc(sizeof(Tab));
+    if(current == NULL){
+        printf("AllocationError!!!");
+        return;
+    }
     news = elt;
     // insertion dans une matrice vide
     if(tab->count < 1){
-
         news->next = NULL;
         news->prev = NULL;
         tab->start = news;
@@ -115,7 +124,6 @@ void insert(_Ref_ tab, _Tab_ elt){
         tab->count++;
     // insertion a la suite d'une matrice
     }else{
-
         if(tab->count < tab->countX * tab->countY){
             current = tab->end->prev;
             current->next = news;
@@ -132,17 +140,14 @@ void insert(_Ref_ tab, _Tab_ elt){
 }
 
 /**
-* IniT - crée une matrix inutilisable [ valeur faux positif]
-* Return:une matrice
+* IniT - crée une matrix inutilisable [ valeur faux positif]////////////a revoir////////////////////////
+* Return: une matrice
 **/ 
-matrix IniT(){
+matrix Init(){
     matrix p;
-    _Tab_ e = init();
-    _Tab_ s = e;
-    insert(&p, s);
+    insert(&p, init());
     return p;
 }
-
 
 /** fin du systeme matriciel de base
     FONCTION SUBTILE DE MATRICE
@@ -157,13 +162,14 @@ matrix IniT(){
 * Return: un element de type Data
 **/
 double trace(matrix matrice){
-
-    _Tab_ elt = (_Tab_) malloc(sizeof(Tab));
-    elt = matrice.start;
-
     double tr = 0.0;
+    _Tab_ elt = malloc(sizeof(Tab));
+    if(elt == NULL){
+        printf("AllocationError!!!");
+        exit(98);
+    }
+    elt = matrice.start;
     while (elt->next != NULL) {
-
         if(elt->ref.i == elt->ref.j)
             tr += elt->data;
         elt = elt->next;
@@ -181,41 +187,50 @@ double trace(matrix matrice){
 * Return: 1 si identique pour tout element, -1 si l'un est le négatif de l'autre, 0 sinon
 **/
 int equal(matrix matrice_1, matrix matrice_2){
-
     if(matrice_1.count != matrice_2.count)
         return 0;
     else{
-
         // parcourt de gauche vers la droite
-        _Tab_ eltL = (_Tab_) malloc(sizeof(Tab));
+        _Tab_ eltL = malloc(sizeof(Tab));
+        if(eltL == NULL){
+            printf("AllocationError!!!");
+            exit(98);
+        }
         eltL = matrice_1.start;
-
-        _Tab_ currentL = (_Tab_) malloc(sizeof(Tab));
+        _Tab_ currentL = malloc(sizeof(Tab));
+        if(currentL == NULL){
+            printf("AllocationError!!!");
+            exit(98);
+        }
         currentL = matrice_2.start;
-
         // parcours de droite vers la gauche
-        _Tab_ eltR = (_Tab_) malloc(sizeof(Tab));
+        _Tab_ eltR = malloc(sizeof(Tab));
+       if(eltR == NULL){
+            printf("AllocationError!!!");
+            exit(98);
+        }
         eltR = matrice_1.end;
-
-        _Tab_ currentR = (_Tab_) malloc(sizeof(Tab));
+        _Tab_ currentR = malloc(sizeof(Tab));
+       if(currentR == NULL){
+            printf("AllocationError!!!");
+            exit(98);
+        }
         currentR = matrice_2.end;
-
         int i = 0, j = 0;
         while( (eltL->next != eltR && eltR->prev != eltL) || (currentL->next != currentR && currentR->next != currentL) ){
-
             if(eltL == currentL && eltR == currentR)
                 i += 2;
             if(eltL->data == -currentL->data && eltR->data == -currentR->data) 
                 j += 2;
 
-            if(eltL->next != eltR->prev){
+            if((eltL->next != eltR->prev) && (eltL->next == eltR || eltR->prev == eltL)){
                 eltL = eltL->next;
                 eltR = eltR->prev;
             }else {
             eltL = eltL->next;
             }
             
-            if(currentL->next != currentR->prev){
+            if((currentL->next != currentR->prev) && (currentL->next == currentR || currentR->prev == currentL)){
                 currentL = currentL->next;
                 currentR = currentR->prev;
             }else {
@@ -255,9 +270,12 @@ void dim(matrix matrice, int row, int col){
 * Return: une matrice identique
 **/
 matrix copy(matrix matrice){
-    _Tab_ elt = (_Tab_) malloc(sizeof(Tab));
+    _Tab_ elt = malloc(sizeof(Tab));
+      if(elt == NULL){
+            printf("AllocationError!!!");
+            return Init();
+        }
     elt = matrice.start;
-
     matrix m;
     while(elt->next != NULL){
         insert(&m, elt);
@@ -278,12 +296,20 @@ matrix copy(matrix matrice){
 **/ 
 matrix screen(matrix matrice, int row, int col){
 
-    matrix m  = IniT() ;
+    matrix m  = Init() ;
     dim(m,matrice.countX - 1,matrice.countY - 1);
 
-    _Tab_ elt = (_Tab_) malloc(sizeof(Tab));
+    _Tab_ elt = malloc(sizeof(Tab));
+         if(elt == NULL){
+            printf("AllocationError!!!");
+            return Init();
+        }
     elt = matrice.start;
-    _Tab_ current = (_Tab_) malloc(sizeof(Tab));
+    _Tab_ current = malloc(sizeof(Tab));
+       if(current == NULL){
+            printf("AllocationError!!!");
+            return Init();
+        }
 
     int  j = 0;
     while(elt->next != NULL){
@@ -293,12 +319,10 @@ matrix screen(matrix matrice, int row, int col){
                 current->ref.i = elt->ref.i;
             else
                 current->ref.i = elt->ref.i - 1;
-
             if(elt->ref.j < j)
                 current->ref.j = j;
             else
                 current->ref.j = elt->ref.j - 1;
-
             current->data = elt->data;
         }
         insert(&m, current);
@@ -334,7 +358,11 @@ double deter(matrix matrice){
 **/
 void append(matrix matrice, double data, int i, int j){
 
-    _Tab_ t = (_Tab_) malloc(sizeof(Tab));
+    _Tab_ t = malloc(sizeof(Tab));
+        if(t == NULL){
+            printf("AllocationError!!!");
+            return ;
+        }
     t->data = data;
     if(i != matrice.end->ref.i && j != matrice.end->ref.j){
         t->ref.i = i;
@@ -359,10 +387,14 @@ void add(matrix matrice,  int row, ...){
     va_start(collect, row);
 
     int stop = 0, x = 0, y = 0;
-
+    
     while (stop != matrice.count){
         elt = va_arg(collect, double);
-        _Tab_ news = (_Tab_) malloc(sizeof(Tab));
+        _Tab_ news = malloc(sizeof(Tab));
+       if(news == NULL){
+            printf("AllocationError!!!");
+            return ;
+        }
         y++;
         if(y == matrice.count){
             x++;
@@ -371,8 +403,8 @@ void add(matrix matrice,  int row, ...){
         news->data = elt;
         news->ref.i = x;
         news->ref.j = y;
-
         insert(&matrice, news);
+            free(news);
         stop++;
     }
 }
@@ -383,13 +415,15 @@ void add(matrix matrice,  int row, ...){
 * @matrice:la matrice de base
 **/
 void print(matrix matrice){
-    _Tab_ elt = (_Tab_) malloc(sizeof(Tab));
+    _Tab_ elt = malloc(sizeof(Tab));
+        if(elt == NULL){
+            printf("AllocationError!!!");
+            return ;
+        }
     elt = matrice.start;
     int i = 0;
     while(elt->next != NULL){
-
         printf("%p", elt);
-
         if(i == matrice.countY-1){
             i = 0;
             printf("\n");
@@ -397,6 +431,7 @@ void print(matrix matrice){
         elt = elt->next;
         i++;
     }
+    free(elt);
 }
 
 /**
@@ -408,89 +443,86 @@ void print(matrix matrice){
 *
 *Return: matrice
 */
-matrix resize(matrix matrice, int n, int boolean){
+matrix resize(matrix matrice, int n, int boolean){///////////////////////////////////////a revoir a partir d'ici///////////////////////////////////////////////
     // matrice incomplete en colonne
     if(boolean == 0){
         // nombre d'element manquant pour atteindre n
         int sub = n-matrice.countY;
         // element parcourant la matrice
-        _Tab_ elt = (_Tab_) malloc(sizeof(Tab));
+        _Tab_ elt = malloc(sizeof(Tab));
+        if(elt == NULL){
+            printf("AllocationError");
+            return Init();
+        }
         elt = matrice.start;
         // matrice qui contiendra element a ajouter
-        _Ref_ tab = (_Ref_) malloc(sizeof(matrix));
-
+        _Ref_ tab = malloc(sizeof(matrix));
+        if(tab == NULL){
+            printf("AllocationError");
+            return Init();
+        }
         // si n est inférieur a la dimension actuel de la matrice a agrandir
         if(sub < matrice.countY){
-
             int i = 0, j =0;
-            _Tab_ current = (_Tab_) malloc(sizeof(Tab));
-
+            _Tab_ current = malloc(sizeof(Tab));
+            if(current == NULL){
+                printf("AllocationError");
+                return Init();
+            }
             while (i < matrice.countX) {
-
-                
-
                 while (j < sub) {
                     // on modifie les numero de ligne et colonne
                     current->data = elt->data;
                     current->ref.i = i;
                     current->ref.j = matrice.countY + j;
-
                     //on crée le chaînage a ajouter
                     insert(tab, current);
                     elt = elt->next;
                     j++;
                 }
-                free(current);
-
                 // atteindre la fin de la premiere ligne pour ajouter les nouveau element
-                while ((elt->ref.i != matrice.countX - 1) && (elt->ref.j != i)){
+                while (elt->ref.j != matrice.countY - 1){
                     elt = elt->next;
                 }
                  // pour conserver la ligne de la matrice normal sans perdre a suite initial
-                _Tab_ old = (_Tab_) malloc(sizeof(Tab));
+                _Tab_ old = malloc(sizeof(Tab));
                 old = elt->next;
-
                 //parcourir les elements a ajouter
                 current = tab->start;
-
+                // on complete les colonnes a leur taille nouvelle
                 while (current->next != NULL) {
-
                     elt->next = current;
                     current = current->next;
                 }
+                // retour a la liaison precedente c'est a dire la ligne prochaine
                 elt->next = old;
-
-                /*
-                * on libère les elements de parcours afin de les réutiliser mais pas elt car 
-                * sont parcours continue
-                */
+                /**
+                * on libère les elements de parcours afin de les réutiliser mais pas elt car sont parcours continue
+                **/
+                free(current);
                 free(tab);
                 free(old);
                 i++;
             }
             free(current);
-        }else {
+        }else {///////////////////////////////////////////////////////////-ici-////////////////////////////////////
             // n supérieur a la dimension actuel de la matrice
             int i = 0, j = 0;
             /* 
             * remettre le compteur a zero puisque elt a ete définir en dehors 
             * de la premiere boucle
             */
-            free(elt);
-            elt = tab->start;
+            elt = matrice.start;
 
             _Tab_ old = (_Tab_) malloc(sizeof(Tab));
             old = elt;
-            while (i < tab->countX) {
-
+            while (i < matrice.countX) {
                 _Tab_ current = (_Tab_) malloc(sizeof(Tab));
-                while (j < tab->countY) {
+                while (j < matrice.countY - 1) {
                     // on modifie les numero de ligne et colonne
-                    
                     current->data = elt->data;
                     current->ref.i = i;
                     current->ref.j = matrice.countY + j;
-
                     //on crée le chaînage a ajouter
                     insert(tab, current);
                     /* 
@@ -503,7 +535,6 @@ matrix resize(matrix matrice, int n, int boolean){
                         old = elt->next;
                         elt->next = tab->start;
                     }
-
                     elt = elt->next;
                     j++;
                 }
@@ -516,7 +547,6 @@ matrix resize(matrix matrice, int n, int boolean){
                 free(old);
                 i++;
             }
-            
             resize(matrice,matrice.countY - n, 0);
         }
 
@@ -724,7 +754,7 @@ matrix count(matrix matrice, int k, char dir[4]){
 **/
 matrix mul(matrix matrice_1, matrix matrice_2){
 
-    matrix m = IniT(), m1 = copy(matrice_1), m2 = copy(matrice_2);
+    matrix m = Init(), m1 = copy(matrice_1), m2 = copy(matrice_2);
    
     if(matrice_1.countY != matrice_2.countX){
     //dimension j de la premiere matrice = a la dimension i de la seconde sinon appel a resize
@@ -910,7 +940,7 @@ matrix coma(matrix matrice){
 * Return: matrix
 **/
 matrix rev(matrix matrice){
-    if(det(matrice) == 0) return IniT();
+    if(det(matrice) == 0) return Init();
     else
         return scalar(trp(coma(matrice)), 1/det(matrice), all);
 }

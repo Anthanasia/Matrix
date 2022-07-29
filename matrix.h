@@ -24,7 +24,7 @@ typedef struct{
 const char *rows = "-rows";
 const char *cols = "-cols";
 
-
+extern matrix Init();
 extern double trace(matrix );
 extern int equal(matrix , matrix );
 extern void dim(matrix matrice, int row, int col);
